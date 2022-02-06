@@ -4,6 +4,7 @@ node_modules
 /.svelte-kit
 /package
 .idea
+.netlify
 yarn.lock
 package-lock.json
 .env

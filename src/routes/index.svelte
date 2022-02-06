@@ -42,8 +42,6 @@
   let loaded = false;
   let ownerId: string | null = null;
   let search = '';
-  let skip = 0;
-  let orderd: 'asc' | 'desc' = 'asc';
   let items: Aavegotchi[] = [];
   let rowsPerPage = 15;
   let currentPage = 0;
@@ -51,13 +49,6 @@
   let debounceTimer;
   let sort: keyof Aavegotchi = 'gotchiId';
   let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
-
-  const fetchMore = () => {
-    skip += 1000
-    $aavegotchis.variables = {...$aavegotchis.variables, skip, orderd}
-    $aavegotchis.reexecute()
-  }
-
 
   $: if (!$aavegotchis.fetching) {
     loaded = true
@@ -74,7 +65,7 @@
   }
 
   $: if ($aavegotchis.data) {
-    items = [...items, ...$aavegotchis.data.aavegotchis.map((gotchi) => {
+    items = $aavegotchis.data.aavegotchis.map((gotchi) => {
       return {
         ...gotchi,
         energy: gotchi.numericTraits[0],
@@ -84,10 +75,7 @@
         eys: gotchi.numericTraits[4],
         eyc: gotchi.numericTraits[5],
       }
-    })]
-    if ($aavegotchis.data.aavegotchis.length) {
-      fetchMore()
-    }
+    })
   }
 
   $: if ($aavegotchisByOwner.data) {
@@ -120,6 +108,7 @@
       search = target.value.toLowerCase()
     }, 300);
   }
+
   const handleSort = () => {
     items = items.sort((a, b) => {
       const [aVal, bVal] = [a[sort], b[sort]][
