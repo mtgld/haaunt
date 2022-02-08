@@ -1,7 +1,6 @@
 export const aavegotchisQuery = `
-    query($skip: Int!, $orderd: String!) {
-      aavegotchis(first: 1000, skip: $skip, orderBy: id, orderDirection: $orderd, where:{ status: 3, owner_not: "0x0000000000000000000000000000000000000000", hauntId: "1" }) {
-        id
+    query($maxId: Int!) {
+      aavegotchis(first: 1000, where:{ id_gt: $maxId }) {
         gotchiId
         name
         level
