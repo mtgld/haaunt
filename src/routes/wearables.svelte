@@ -183,7 +183,7 @@
                 <Cell columnId="brain">
                     BRN 🧠
                 </Cell>
-                <Cell columnId="scarcity">
+                <Cell columnId="rating">
                     Scarcity Rating
                 </Cell>
             </Row>
