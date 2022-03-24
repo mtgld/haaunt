@@ -120,11 +120,12 @@
     clearTimeout(debounceTimer);
     const target = event.target as HTMLInputElement
     debounceTimer = setTimeout(() => {
-      search = target.value.toLowerCase()
+      search = target.value.toLowerCase();
+      const isNumber = target.value.match(/^\d+$/)
       if (ownerId) {
-        items = ownerGotchis.filter((gotchi) => gotchi.name.toLowerCase().includes(search))
+        items = ownerGotchis.filter((gotchi) => (isNumber ? gotchi.gotchiId : gotchi.name.toLowerCase()).includes(search))
       } else {
-        items = allGotchis.filter((gotchi) => gotchi.name.toLowerCase().includes(search))
+        items = allGotchis.filter((gotchi) => (isNumber ? gotchi.gotchiId : gotchi.name.toLowerCase()).includes(search))
       }
     }, 300);
   }
@@ -202,10 +203,16 @@
                     Kinship
                 </Cell>
                 <Cell columnId="baseRarityScore">
-                    Base Rarity Score
+                    <Wrapper>
+                        <span>BRS</span>
+                        <Tooltip>Base Rarity Score</Tooltip>
+                    </Wrapper>
                 </Cell>
                 <Cell columnId="modifiedRarityScore">
-                    Modified Rarity Score
+                    <Wrapper>
+                        <span>MRS</span>
+                        <Tooltip>Modified Rarity Score: BRS plus all bonuses</Tooltip>
+                    </Wrapper>
                 </Cell>
             </Row>
         </Head>
