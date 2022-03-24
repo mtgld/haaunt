@@ -1,5 +1,6 @@
 <script lang="ts">
   import DataTable, { Body, Cell, Head, Pagination, Row, SortValue } from '@smui/data-table';
+  import { goto } from '$app/navigation'
 
   import { initClient, operationStore, query } from '@urql/svelte';
   import { wearablesQuery } from '../queries/wearables';
@@ -8,6 +9,10 @@
   import LinearProgress from '@smui/linear-progress';
   import Select, { Option } from '@smui/select';
   import { Label } from '@smui/common';
+  import Paper from "@smui/paper";
+  import Icon from "@smui/textfield/icon";
+  import { Input } from "@smui/textfield";
+  import Button, { Label as ButtonLabel } from '@smui/button';
 
   initClient({
     url: 'https://api.thegraph.com/subgraphs/name/aavegotchi/aavegotchi-core-matic',
@@ -16,27 +21,44 @@
   query(wearables)
 
   let items: Wearable[] = [];
+  let wearableItems: Wearable[] = []
   let loaded = false;
+  let search = '';
   let rowsPerPage = 15;
+  let debounceTimer;
   let currentPage = 0;
   let lastPage;
   let sort: keyof Wearable = 'id';
   let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
 
   $: if ($wearables.data && !$wearables.fetching) {
-    console.log(wearables.data)
-    items = wearables.data.itemTypes.map((wearable) => {
-      const rarity = getRarity(wearable.maxQuantity)
-      // const TRS = rarity.brs
-      //   + Math.abs(wearable.traitModifiers[0])
-      //   + Math.abs(wearable.traitModifiers[1])
-      //   + Math.abs(wearable.traitModifiers[2])
-      //   + Math.abs(wearable.traitModifiers[3])
-      // const rating = (TRS / (Number(wearable.maxQuantity) * 10000)) * 0.5**4
+    const TQ = wearables.data.itemTypes.reduce((prev, curr) => {
+      const slotIndex = curr.slotPositions.findIndex((item) => item === true)
+      const rarity = curr.rarityScoreModifier;
+      return {
+        ...prev,
+        [rarity]: {
+          ...prev[rarity],
+          [slotIndex]: Number(curr.maxQuantity) + (prev[rarity] ? prev[rarity][slotIndex] || 0 : 0)
+        }
+      }
+    },{})
+
+    wearableItems = wearables.data.itemTypes.map((wearable) => {
+      const slotIndex = wearable.slotPositions.findIndex((item) => item === true)
+      const rarity = getRarity(wearable)
+      const TRS = rarity.brs
+        + Math.abs(wearable.traitModifiers[0])
+        + Math.abs(wearable.traitModifiers[1])
+        + Math.abs(wearable.traitModifiers[2])
+        + Math.abs(wearable.traitModifiers[3])
+      const D = wearable.traitModifiers.filter((item)  => item !== 0).length;
+      const rating = (((TRS / TQ[wearable.rarityScoreModifier][slotIndex]) * 0.5**D) * 100).toFixed(2);
+      const isHands = wearable.slotPositions[4] || wearable.slotPositions[5]
       return {
         ...wearable,
         ...rarity,
-        // rating,
+        rating: isHands ? rating * 2 : rating,
         energy: wearable.traitModifiers[0],
         aggression: wearable.traitModifiers[1],
         spookiness: wearable.traitModifiers[2],
@@ -44,6 +66,7 @@
         slot: getSlot(wearable.slotPositions)
       }
     })
+    items = wearableItems;
     loaded = true;
   }
 
@@ -71,20 +94,19 @@
     });
   };
 
-  const getRarity = (quantity: string) => {
-    const qNumber = Number(quantity)
-    switch (true) {
-      case qNumber === 1000:
+  const getRarity = (wearable: Wearable) => {
+    switch (wearable.rarityScoreModifier) {
+      case 1:
         return { rarity: 'Common', color: 'white', brs: 1 };
-      case qNumber === 500:
+      case 2:
         return { rarity: 'Uncommon', color: 'lightskyblue', brs: 2 };
-      case qNumber >= 250 && qNumber <= 308:
+      case 5:
         return { rarity: 'Rare', color: 'cornflowerblue', brs: 5 };
-      case qNumber >= 100 && qNumber <= 150:
+      case 10:
         return { rarity: 'Legendary', color: 'orange', brs: 10 };
-      case qNumber >= 10 && qNumber <= 50:
+      case 20:
         return { rarity: 'Mythical', color: 'mediumpurple', brs: 20 };
-      case qNumber === 5:
+      case 50:
         return { rarity: 'Godlike', color: 'red', brs: 50 };
       default:
         return { rarity: 'Common', color: 'white', brs: 1 };
@@ -111,8 +133,26 @@
         return 'BG'
     }
   }
+  const handleSearch = (event: KeyboardEvent) => {
+    clearTimeout(debounceTimer);
+    const target = event.target as HTMLInputElement
+    debounceTimer = setTimeout(() => {
+      search = target.value.toLowerCase();
+      const isNumber = target.value.match(/^\d+$/)
+      items = wearableItems.filter((wearable) => (isNumber ? wearable.id : wearable.name.toLowerCase()).includes(search))
+    }, 300);
+  }
 </script>
 
+<div class="pb-4 w-full flex items-center">
+    <Paper class="flex p-2 h-full" elevation={3}>
+        <Icon class="material-icons p-0 pr-2">search</Icon>
+        <Input bind:search on:keyup={handleSearch} placeholder="Search"/>
+    </Paper>
+    <Button class="ml-4" on:click={() => goto('/leaderboard')} variant="outlined">
+        <ButtonLabel>Leaderboard</ButtonLabel>
+    </Button>
+</div>
 <div class="overflow-hidden">
     <DataTable sortable
                bind:sort
@@ -174,7 +214,7 @@
                         {wearable.traitModifiers[3]}
                     </Cell>
                     <Cell>
-                        {0}
+                        {wearable.rating}
                     </Cell>
                 </Row>
             {/each}

@@ -16,6 +16,7 @@
   import { aavegotchisQuery } from '../queries/aavegotchis';
   import { aavegotchisByOwnerQuery } from '../queries/aavegotchisByOwner';
   import * as _ from 'lodash';
+  import { goto } from "$app/navigation";
 
   initClient({
     url: 'https://api.thegraph.com/subgraphs/name/aavegotchi/aavegotchi-core-matic',
@@ -156,6 +157,9 @@
         <Icon class="material-icons p-0 pr-2">search</Icon>
         <Input bind:search on:keyup={handleSearch} placeholder="Search"/>
     </Paper>
+    <Button class="ml-4" on:click={() => goto('/wearables')} variant="outlined">
+        <ButtonLabel>Wearables</ButtonLabel>
+    </Button>
     {#if ownerId}
         <Button class="ml-4" on:click={() => reset()} variant="outlined">
             <ButtonLabel>Reset</ButtonLabel>
