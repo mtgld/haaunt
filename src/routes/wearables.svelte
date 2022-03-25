@@ -144,6 +144,9 @@
   }
 </script>
 
+<svelte:head>
+    <title>Wearables</title>
+</svelte:head>
 <div class="pb-4 w-full flex items-center">
     <Paper class="flex p-2 h-full" elevation={3}>
         <Icon class="material-icons p-0 pr-2">search</Icon>
