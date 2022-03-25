@@ -79,12 +79,14 @@
         eys: gotchi.numericTraits[4],
         eyc: gotchi.numericTraits[5],
       }
-    }).sort((a, b) => Number(a.gotchiId) - Number(b.gotchiId)).filter((gotchi) => gotchi.owner)], 'gotchiId')
+    }).filter((gotchi) => gotchi.owner)], 'gotchiId')
     if (aavegotchis.data.aavegotchis.length) {
       const maxGotchiId = Number(allGotchis[allGotchis.length - 1]?.gotchiId);
       fetchMore(maxGotchiId)
+      allGotchis.sort((a, b) => Number(a.gotchiId) - Number(b.gotchiId))
     } else {
       allFetched = true;
+      allGotchis.sort((a, b) => Number(a.gotchiId) - Number(b.gotchiId))
     }
     if (!ownerId && !search) {
       loaded = true

@@ -65,7 +65,7 @@
         brain: wearable.traitModifiers[3],
         slot: getSlot(wearable.slotPositions)
       }
-    })
+    }).sort((a, b) => Number(a.id) - Number(b.id))
     items = wearableItems;
     loaded = true;
   }

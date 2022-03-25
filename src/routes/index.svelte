@@ -7,4 +7,6 @@
     }
   }
 </script>
-
+<svelte:head>
+    <title>Haaunt</title>
+</svelte:head>
