@@ -165,7 +165,9 @@
             <ButtonLabel>Reset</ButtonLabel>
         </Button>
     {/if}
+    {#if !allFetched}
         <Card class="ml-auto p-2">Gotchis are still fetching...</Card>
+    {/if}
 </div>
 <div class="overflow-hidden">
     <DataTable sortable

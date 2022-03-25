@@ -97,7 +97,7 @@
   const getRarity = (wearable: Wearable) => {
     switch (wearable.rarityScoreModifier) {
       case 1:
-        return { rarity: 'Common', color: 'white', brs: 1 };
+        return { rarity: 'Common', color: 'darkseagreen', brs: 1 };
       case 2:
         return { rarity: 'Uncommon', color: 'lightskyblue', brs: 2 };
       case 5:
