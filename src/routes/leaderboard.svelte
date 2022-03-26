@@ -150,7 +150,7 @@
   };
 
   const openInNewTab = (gotchiId: string) => {
-    window.open(`https://aavegotchi.com/gotchi/${gotchiId}`)
+    window.open(`https://app.aavegotchi.com/gotchi/${gotchiId}`)
   }
 </script>
 
